@@ -2,7 +2,7 @@
 
 """
 AudiMeta Client Module - Handle book metadata and chapter information retrieval
-Version: 1.0.6
+Version: 1.0.7
 """
 
 import json
@@ -15,7 +15,7 @@ class AudiMetaClient:
     def __init__(self):
         self.api_base_url = "https://audimeta.de"
         self.headers = {
-            'User-Agent': 'AudioMetaSplitter/1.0.6',
+            'User-Agent': 'AudioMetaSplitter/1.0.7',
             'Accept': 'application/json'
         }
 
@@ -29,24 +29,63 @@ class AudiMetaClient:
             if audio.tags:
                 title = str(audio.tags.get('TIT2', ''))
                 album = str(audio.tags.get('TALB', ''))
-                metadata['title'] = title or album or "Mother"
+                extracted_title = title or album
                 
                 author = str(audio.tags.get('TPE1', ''))
-                metadata['author'] = author or "m.s. RedCherries"
+                
+                if extracted_title:
+                    metadata['title'] = extracted_title
+                    print(f"Extracted title: {extracted_title}")
+                else:
+                    print("No title found in file metadata.")
+                    title_input = input("Please enter the book title: ").strip()
+                    if title_input:
+                        metadata['title'] = title_input
+                    else:
+                        print("No title provided. Searching may be less accurate.")
+                        return None
+                
+                if author:
+                    metadata['author'] = author
+                    print(f"Extracted author: {author}")
+                else:
+                    print("No author found in file metadata.")
+                    author_input = input("Please enter the author name: ").strip()
+                    if author_input:
+                        metadata['author'] = author_input
+                    else:
+                        print("No author provided. Searching may be less accurate.")
+                        return None
                 
                 metadata['region'] = 'US'
                 
-                print(f"Extracted metadata: {json.dumps(metadata, indent=2)}")
+                print(f"Using metadata: {json.dumps(metadata, indent=2)}")
                 return metadata
             else:
-                return {
-                    'title': "Mother",
-                    'author': "m.s. RedCherries",
-                    'region': 'US'
-                }
+                print("No ID3 tags found in the file.")
+                return self.prompt_for_metadata()
         except Exception as e:
             print(f"Error reading metadata: {str(e)}")
+            return self.prompt_for_metadata()
+            
+    def prompt_for_metadata(self):
+        """Prompt user for metadata when it can't be extracted from the file"""
+        print("\nPlease provide book information manually:")
+        title = input("Enter book title: ").strip()
+        if not title:
+            print("Title is required.")
             return None
+            
+        author = input("Enter author name: ").strip()
+        if not author:
+            print("Author is required.")
+            return None
+            
+        return {
+            'title': title,
+            'author': author,
+            'region': 'US'
+        }
 
     def display_search_results(self, results):
         """Display search results in a table format"""
@@ -186,6 +225,10 @@ class AudiMetaClient:
 
     def fetch_book_metadata(self, search_params):
         """Search for book in AudiMeta API"""
+        if not search_params:
+            print("No search parameters provided.")
+            return self.manual_search()
+            
         try:
             params = {
                 'title': search_params.get('title', ''),
