@@ -1,0 +1,11 @@
+"""
+AudioMeta Splitter Package
+Version: 1.0.6
+"""
+
+from .audimeta_client import AudiMetaClient
+from .audio_splitter import AudioSplitter
+
+__version__ = "1.0.6"
+__author__ = "JaegerMaster"
+__created__ = "2025-03-26 05:20:16"
