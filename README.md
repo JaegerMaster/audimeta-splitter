@@ -5,6 +5,8 @@ A command-line tool to split audiobooks using AudiMeta API and ffmpeg. This tool
 
 ## Guide 
 
+![Short Demo GIF]([https://your-domain.com/path/to/your-demo.gif](https://github.com/JaegerMaster/audimeta-splitter/blob/V2/Audimeta_splitter_Demo.gif))
+
 https://github.com/JaegerMaster/audimeta-splitter/blob/V2/Audimeta_splitter_Demo.mov
 
 ## Requirements
